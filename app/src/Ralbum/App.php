@@ -11,7 +11,7 @@ class App
     protected $setting;
     protected $parts;
 
-    protected $actions = ['list', 'detail', 'original', 'update_thumbnail', 'search', 'info', 'rotate', 'video_stream', 'map_view', 'stats', 'rate'];
+    protected $actions = ['list', 'detail', 'original', 'update_thumbnail', 'search', 'info', 'rotate', 'video_stream', 'map_view', 'stats', 'rate', 'api'];
 
     public function __construct()
     {
@@ -128,8 +128,28 @@ class App
             case 'stats':
                 $this->renderStats();
                 break;
+            case 'api':
+                $this->renderApi();
+                break;
 
 
+        }
+    }
+
+    public function renderApi()
+    {
+        if (Search::isSupported()) {
+
+            $this->removeActionUrlParts();
+
+            if (count($this->parts) == 1 && reset($this->parts) == 'random') {
+
+                $search = new \Ralbum\Search();
+                $randomImage = $search->getRandom(true);
+                header('Content-Type:application/json');
+                echo json_encode($randomImage);
+                die();
+            }
         }
     }
 

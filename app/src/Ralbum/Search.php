@@ -606,7 +606,7 @@ class Search
         return $images;
     }
     
-    function getRandom() {
+    function getRandom($returnFullSingle = false) {
 
         $max = \Ralbum\Setting::get('random_images_count');
 
@@ -625,13 +625,22 @@ class Search
         $randomIds = array_slice($allRowIds, 0, $max);
 
         $images = [];
+        $fullDetailList = [];
         $statement = $this->db->prepare('SELECT * FROM files WHERE rowid in(' . implode(',', $randomIds) .')');
         $result = $statement->execute();
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $image = new Image($row['file_path']);
             if (file_exists($image->getDetailPath()) && file_exists($image->getThumbnailPath())) {
                 $images[] = $image;
+                $fullDetailList[] = $row;
             }
+        }
+
+        if ($returnFullSingle) {
+            if (empty($fullDetailList)) {
+                return null;
+            }
+            return $fullDetailList[array_rand($fullDetailList)];
         }
 
         return $images;
